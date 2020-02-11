@@ -22,6 +22,7 @@ RUN mkdir /projects ${HOME} && \
     done && \
     wget -qO- https://github.com/errata-ai/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz | tar xvz -C /usr/local/bin && \
     chmod +x /usr/local/bin/vale && \
+    apk --no-cache --update --allow-untrusted add asciidoctor && \
     # Future word lists or config files can go here
     mkdir ${HOME}/vale
 
