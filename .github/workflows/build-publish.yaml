@@ -52,7 +52,7 @@ jobs:
           SHORT_SHA1=$(git rev-parse --short HEAD)
           PLATFORMS=$(cat PLATFORMS)
           echo "Building and pushing version ${IMAGE_VERSION} with SHA1 ${SHORT_SHA1}"
-          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin quay.io
           docker buildx build --cache-from="type=registry,ref=${IMAGE_NAME}" \
             --platform "${PLATFORMS}" -t "${IMAGE_NAME}:${IMAGE_VERSION}-${SHORT_SHA1}" \
             --push .
