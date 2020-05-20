@@ -32,8 +32,8 @@ jobs:
           PLATFORMS=$(cat PLATFORMS)
           echo "Building and pushing version ${IMAGE_VERSION} of image ${IMAGE_NAME}"
           docker buildx build --cache-from="type=registry,ref=${IMAGE_NAME}" \
-            --cache-to="type=registry,ref=${IMAGE_NAME},mode=max" \
-            --platform "${PLATFORMS}" -t "${IMAGE_NAME}" -t "${IMAGE_NAME}:${IMAGE_VERSION}-${SHORT_SHA1}" \
+            --cache-from="type=registry,ref=${IMAGE_NAME},mode=max" \
+            --platform "${PLATFORMS}" -t "${IMAGE_NAME}:${IMAGE_VERSION}" -t "${IMAGE_NAME}:${IMAGE_VERSION}-${SHORT_SHA1}" \
             --push . && echo "::set-env name=BUILDX_FAIL::false"
 
       - name: Build and push plain version-named image without cache
@@ -45,5 +45,5 @@ jobs:
           echo "Building and pushing version ${IMAGE_VERSION} of image ${IMAGE_NAME} with no caching"
           docker buildx build \
             --platform "${PLATFORMS}" \
-            --no-cache -t "${IMAGE_NAME}" -t "${IMAGE_NAME}:${IMAGE_VERSION}-${SHORT_SHA1}" \
+            --no-cache -t "${IMAGE_NAME}:${IMAGE_VERSION}" -t "${IMAGE_NAME}:${IMAGE_VERSION}-${SHORT_SHA1}" \
             --push .
