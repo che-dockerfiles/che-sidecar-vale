@@ -24,26 +24,35 @@ jobs:
         with:
           buildx-version: v0.4.1
       
-      - name: Docker build, tag, and push with cache
+      - name: Build and push plain version-named image with cache
+        continue-on-error: true
         run: |
           IMAGE_VERSION=$(cat VERSION)
-          SHORT_SHA1=$(git rev-parse --short HEAD)
           PLATFORMS=$(cat PLATFORMS)
           echo "Building and pushing version ${IMAGE_VERSION} of image ${IMAGE_NAME}"
           docker buildx build --cache-from="type=registry,ref=${IMAGE_NAME}" \
             --cache-to="type=registry,ref=${IMAGE_NAME},mode=max" \
-            --platform "${PLATFORMS}" -t "${IMAGE_NAME}:${IMAGE_VERSION}-${SHORT_SHA1}" \
+            --platform "${PLATFORMS}" -t "${IMAGE_NAME}" \
             --push . && echo "::set-env name=BUILDX_FAIL::false"
 
-      - name: Run Buildx no cache
+      - name: Build and push plain version-named image without cache
         if: env.BUILDX_FAIL == 'true'
-        continue-on-error: true
         run: |
           IMAGE_VERSION=$(cat VERSION)
-          SHORT_SHA1=$(git rev-parse --short HEAD)
           PLATFORMS=$(cat PLATFORMS)
           echo "Building and pushing version ${IMAGE_VERSION} of image ${IMAGE_NAME} with no caching"
           docker buildx build \
             --platform "${PLATFORMS}" \
-            --no-cache -t "${IMAGE_NAME}:${IMAGE_VERSION}-${SHORT_SHA1}" \
+            --no-cache -t "${IMAGE_NAME}" \
+            --push .
+      
+      - name: Build and push version and SHA1 image with cache
+        run: |
+          IMAGE_VERSION=$(cat VERSION)
+          SHORT_SHA1=$(git rev-parse --short HEAD)
+          PLATFORMS=$(cat PLATFORMS)
+          echo "Building and pushing version ${IMAGE_VERSION} with SHA1 ${SHORT_SHA1}"
+          docker buildx build --cache-from="type=registry,ref=${IMAGE_NAME}" \
+            --cache-to="type=registry,ref=${IMAGE_NAME},mode=max" \
+            --platform "${PLATFORMS}" -t "${IMAGE_NAME}:${IMAGE_VERSION}-${SHORT_SHA1}" \
             --push .
