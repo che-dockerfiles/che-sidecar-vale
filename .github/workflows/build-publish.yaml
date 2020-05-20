@@ -3,28 +3,47 @@ on:
 
 jobs:
   build:
+    env:
+      IMAGE_NAME: quay.io/eclipse/che-sidecar-vale
     runs-on: ubuntu-latest
     steps:
       - name: Clone source code
         uses: actions/checkout@v1
         with:
           fetch-depth: 1
+      
       - name: Docker login
         uses: azure/docker-login@v1
         with:
           login-server: quay.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+      
       - name: Docker Buildx
         uses: crazy-max/ghaction-docker-buildx@v1.5.0
         with:
-          version: v0.4.1
-      - name: Docker build, tag, and push
+          buildx-version: v0.4.1
+      
+      - name: Docker build, tag, and push with cache
         run: |
           IMAGE_VERSION=$(cat VERSION)
           SHORT_SHA1=$(git rev-parse --short HEAD)
           PLATFORMS=$(cat PLATFORMS)
           echo "Building and pushing version ${IMAGE_VERSION} of image ${IMAGE_NAME}"
-          docker buildx build --cache-from="type=registry,ref=${IMAGE_NAME}:${IMAGE_VERSION}-${SHORT_SHA1}" --cache-to="type=registry,ref=${IMAGE_NAME}:${IMAGE_VERSION}-${SHORT_SHA1},mode=max" --platform "${PLATFORMS}" -t "${IMAGE_NAME}:${IMAGE_VERSION}-${SHORT_SHA1}" --push .
-        env:
-          IMAGE_NAME: quay.io/eclipse/che-sidecar-vale
+          docker buildx build --cache-from="type=registry,ref=${IMAGE_NAME}" \
+            --cache-to="type=registry,ref=${IMAGE_NAME},mode=max" \
+            --platform "${PLATFORMS}" -t "${IMAGE_NAME}:${IMAGE_VERSION}-${SHORT_SHA1}" \
+            --push . && echo "::set-env name=BUILDX_FAIL::false"
+
+      - name: Run Buildx no cache
+        if: env.BUILDX_FAIL == 'true'
+        continue-on-error: true
+        run: |
+          IMAGE_VERSION=$(cat VERSION)
+          SHORT_SHA1=$(git rev-parse --short HEAD)
+          PLATFORMS=$(cat PLATFORMS)
+          echo "Building and pushing version ${IMAGE_VERSION} of image ${IMAGE_NAME} with no caching"
+          docker buildx build \
+            --platform "${PLATFORMS}" \
+            --no-cache -t "${IMAGE_NAME}:${IMAGE_VERSION}-${SHORT_SHA1}" \
+            --push .
