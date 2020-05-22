@@ -24,8 +24,7 @@ jobs:
         with:
           buildx-version: v0.4.1
       
-      - name: Build and push plain version-named image with cache
-        continue-on-error: true
+      - name: Build and push image
         run: |
           IMAGE_VERSION=$(cat VERSION)
           SHORT_SHA1=$(git rev-parse --short HEAD)
