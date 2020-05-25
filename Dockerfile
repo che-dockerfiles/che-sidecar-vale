@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM alpine:3.11.5
+FROM alpine:3.11.6
 
 ENV HOME=/home/theia
 # 1.7.1 has a bug in the packaged executable, v2.0.0 is still in beta -- thus we are using 1.7.0
