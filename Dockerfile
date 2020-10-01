@@ -11,8 +11,7 @@
 FROM alpine:3.11.6
 
 ENV HOME=/home/theia
-# 1.7.1 has a bug in the packaged executable, v2.0.0 is still in beta -- thus we are using 1.7.0
-ENV VALE_VERSION=1.7.0
+ENV VALE_VERSION=2.4.0
 
 RUN mkdir /projects ${HOME} && \
     # Change permissions to let any arbitrary user
