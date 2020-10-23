@@ -8,7 +8,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-FROM alpine:3.11.6
+FROM alpine:3.12.1
 
 ENV HOME=/home/theia
 ENV VALE_VERSION=2.4.0
